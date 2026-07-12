@@ -21,7 +21,7 @@ A labeled reverse-engineering dataset over **4,598 crackmes** from
 - **→ 2,172 crackmes (47.2%) with a high-confidence, machine-checkable answer**
   (flag OR passing verifier; 70 have both)
 
-Plus normalized **obfuscation tags** on 1,704 crackmes (16 classes + specific
+Plus normalized **obfuscation tags** on 1,715 crackmes (16 classes + specific
 anti-debug / packer / control-flow sub-labels).
 
 **Corner cases** — fully labeled and filterable (see `dataset/README.md` →
@@ -31,8 +31,8 @@ anti-debug / packer / control-flow sub-labels).
 - **698** verifiers reconstructed but failing the self-test — not confirmed correct
 - **41** quarantined as unsupported (network / keyfile / native DLL / exploit)
 
-Top classes: Anti-debugging (751), Packer (563), String/data encryption (514),
-Self-modifying (312), Code virtualization/VM (256). Specific sub-labels exist for
+Top classes: Anti-debugging (756), String/data encryption (586), Packer (563),
+Self-modifying (312), Crypto/hash (283). Specific sub-labels exist for
 anti-debug methods (e.g. IsDebuggerPresent 211), packers (UPX 219, FSG 62), and
 control-flow techniques.
 

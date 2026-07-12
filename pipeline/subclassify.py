@@ -115,6 +115,16 @@ ADIS = [(n, re.compile(p, re.I)) for n, p in ANTIDISASM]
 CRY = [(n, re.compile(p, re.I)) for n, p in CRYPTO]
 ENC = [(n, re.compile(p, re.I)) for n, p in ENCRYPTION]
 
+# each sub-label field -> the high-level class it refines
+PARENT_CLASS = {
+    "antidebug_methods":    "Anti-debugging",
+    "packers":              "Packer",
+    "controlflow_methods":  "Control-flow obfuscation",
+    "antidisasm_methods":   "Anti-disassembly",
+    "crypto_methods":       "Crypto / hash algorithm",
+    "encryption_methods":   "String / data encryption",
+}
+
 
 def match_all(tags, compiled):
     hits = set()
@@ -149,6 +159,15 @@ def main():
         r["antidisasm_methods"] = axm
         r["crypto_methods"] = crm
         r["encryption_methods"] = enm
+        # Invariant: a non-empty sub-label implies its parent class. A named
+        # technique that matched a sub-label regex but not the (narrower) class
+        # regex must still carry its umbrella class. Additive + deterministic.
+        cls_set = set(classes)
+        for field, parent in PARENT_CLASS.items():
+            if r.get(field):
+                cls_set.add(parent)
+        r["obfuscation_classes"] = sorted(cls_set)
+        classes = r["obfuscation_classes"]
         if "Anti-debugging" in classes:
             for m in adm:
                 ad_dist[m] += 1

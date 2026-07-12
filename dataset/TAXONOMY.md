@@ -32,15 +32,15 @@ API cost. Counts below = crackmes carrying that tag (of 4,598).
 
 | Class | Crackmes | What it covers |
 |---|---:|---|
-| Anti-debugging | 751 | detects/thwarts a debugger — incl. timing (rdtsc/GetTickCount), anti-attach/thread tricks, and SEH/INT2D debugger detection |
+| Anti-debugging | 756 | detects/thwarts a debugger — incl. timing (rdtsc/GetTickCount), anti-attach/thread tricks, and SEH/INT2D debugger detection |
+| String / data encryption | 586 | encrypted/obfuscated strings or data (XOR, RC4, string encryption) |
 | Packer | 563 | runtime packers (UPX, FSG, ASPack, MPRESS, …) **and** commercial protectors (Themida, VMProtect, .NET Reactor, ConfuserEx, ASProtect, …) |
-| String / data encryption | 514 | encrypted/obfuscated strings or data (XOR, RC4, string encryption) |
 | Self-modifying / runtime decrypt | 312 | code rewrites/decrypts itself at runtime (SMC, section decryption, polymorphic, VirtualProtect) |
+| Crypto / hash algorithm | 283 | standard crypto/hash in the key check (MD5, SHA, CRC32, AES, TEA) |
 | Code virtualization / VM | 256 | custom bytecode interpreter / virtualized code |
-| Crypto / hash algorithm | 205 | standard crypto/hash in the key check (MD5, SHA, CRC32, AES, TEA) |
-| Control-flow obfuscation | 143 | flattening, junk branches, indirect jumps, state machines, exception-driven flow |
+| Control-flow obfuscation | 187 | flattening, junk branches, indirect jumps, state machines, exception-driven flow |
+| Anti-disassembly | 183 | junk bytes, opaque predicates, misaligned code that breaks disassemblers |
 | Anti-tamper / integrity | 137 | checksum/CRC self-checks, anti-patch |
-| Anti-disassembly | 126 | junk bytes, opaque predicates, misaligned code that breaks disassemblers |
 | Import / API obfuscation | 78 | runtime import resolution, API hashing, IAT obfuscation |
 | Custom / generic obfuscation | 73 | bespoke/unspecified "obfuscated" with no named mechanism |
 | Encoding (base64/hex) | 72 | reversible encodings (base64, hex, rot13) |
