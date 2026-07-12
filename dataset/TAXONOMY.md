@@ -10,7 +10,8 @@ raw_obfuscation_tags   free-text tags the model wrote      (4,654 distinct strin
 obfuscation_classes    16 high-level classes               (below)
       │  subclassify.py     (regex → specific techniques)
       ▼
-antidebug_methods / packers / controlflow_methods / antidisasm_methods   specific sub-labels
+antidebug_methods / packers / controlflow_methods / antidisasm_methods /
+crypto_methods / encryption_methods                 specific sub-labels
 ```
 
 The exact mapping rules are regexes in `pipeline/normalize_tags.py` (classes) and
@@ -72,6 +73,14 @@ Return-address/stack-based (14)
 Malformed PE / bad bytes UD2 (12), Overlapping/misaligned instructions (8),
 Jump-based desync (7); 20 crackmes have a generic anti-disassembly tag with no
 specific mechanism.
+
+**`crypto_methods` (12)** — MD5 (69), CRC32 (49), RSA (37), AES (32), SHA-256 (30),
+SHA-1 (23), TEA/XTEA (23), Base64 (22), RC4 (18), other/custom hash (12), Blowfish (11),
+DES/3DES (7); 9 crackmes have no named algorithm.
+
+**`encryption_methods` (6)** — XOR (353), Base64 (25), RC4 (24), Substitution/table (14),
+TEA/XTEA (12), AES (11); 120 crackmes have a generic string/data-encryption tag with
+no named cipher.
 
 ---
 

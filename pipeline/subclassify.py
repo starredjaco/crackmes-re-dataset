@@ -84,10 +84,36 @@ ANTIDISASM = [
     ("Malformed PE / bad bytes (UD2)",    r"malformed pe|\bud2\b|bad byte|corrupt.*header|ida[-\s]?unfriendly"),
 ]
 
+CRYPTO = [
+    ("MD5",         r"\bmd5\b"),
+    ("SHA-1",       r"sha-?1\b"),
+    ("SHA-256",     r"sha-?256"),
+    ("CRC32",       r"crc-?32|\bcrc\b"),
+    ("AES",         r"\baes\b|rijndael"),
+    ("DES / 3DES",  r"\bdes\b|3des|triple des"),
+    ("RC4",         r"\brc4\b"),
+    ("TEA / XTEA",  r"\btea\b|xtea"),
+    ("RSA",         r"\brsa\b"),
+    ("Blowfish",    r"blowfish"),
+    ("Base64",      r"base\s*64|base64"),
+    ("Other / custom hash", r"custom hash|adler|murmur|\bdjb\b|\bfnv\b|jenkins|superfast|xxhash"),
+]
+
+ENCRYPTION = [
+    ("XOR",                 r"\bxor\b"),
+    ("RC4",                 r"\brc4\b"),
+    ("TEA / XTEA",          r"\btea\b|xtea"),
+    ("AES",                 r"\baes\b|rijndael"),
+    ("Base64",              r"base\s*64|base64"),
+    ("Substitution / table", r"substitut|lookup table|s-?box|translation table"),
+]
+
 ADC = [(n, re.compile(p, re.I)) for n, p in ANTIDEBUG]
 PKC = [(n, re.compile(p, re.I)) for n, p in PACKERS]
 CFC = [(n, re.compile(p, re.I)) for n, p in CONTROLFLOW]
 ADIS = [(n, re.compile(p, re.I)) for n, p in ANTIDISASM]
+CRY = [(n, re.compile(p, re.I)) for n, p in CRYPTO]
+ENC = [(n, re.compile(p, re.I)) for n, p in ENCRYPTION]
 
 
 def match_all(tags, compiled):
@@ -105,7 +131,9 @@ def main():
     pk_dist = collections.Counter()
     cf_dist = collections.Counter()
     ax_dist = collections.Counter()
-    ad_generic = pk_generic = cf_generic = ax_generic = 0
+    cr_dist = collections.Counter()
+    en_dist = collections.Counter()
+    ad_generic = pk_generic = cf_generic = ax_generic = cr_generic = en_generic = 0
     for r in rows:
         tags = r.get("obfuscation") or []
         classes = r.get("obfuscation_classes") or []
@@ -113,10 +141,14 @@ def main():
         pks = match_all(tags, PKC)
         cfm = match_all(tags, CFC)
         axm = match_all(tags, ADIS)
+        crm = match_all(tags, CRY)
+        enm = match_all(tags, ENC)
         r["antidebug_methods"] = adm
         r["packers"] = pks
         r["controlflow_methods"] = cfm
         r["antidisasm_methods"] = axm
+        r["crypto_methods"] = crm
+        r["encryption_methods"] = enm
         if "Anti-debugging" in classes:
             for m in adm:
                 ad_dist[m] += 1
@@ -137,6 +169,16 @@ def main():
                 ax_dist[m] += 1
             if not axm:
                 ax_generic += 1
+        if "Crypto / hash algorithm" in classes:
+            for m in crm:
+                cr_dist[m] += 1
+            if not crm:
+                cr_generic += 1
+        if "String / data encryption" in classes:
+            for m in enm:
+                en_dist[m] += 1
+            if not enm:
+                en_generic += 1
 
     with open(OUT, "w") as f:
         for r in rows:
@@ -169,6 +211,20 @@ def main():
         if ax_dist[m]:
             print(f"  {m:42} {ax_dist[m]:4}")
     print(f"  {'(generic anti-disassembly, no mechanism)':42} {ax_generic:4}")
+
+    cr_total = sum(1 for r in rows if "Crypto / hash algorithm" in (r.get("obfuscation_classes") or []))
+    print(f"\n=== CRYPTO / HASH algorithms (of {cr_total} crackmes) ===")
+    for m, _ in CRYPTO:
+        if cr_dist[m]:
+            print(f"  {m:42} {cr_dist[m]:4}")
+    print(f"  {'(no named algorithm)':42} {cr_generic:4}")
+
+    en_total = sum(1 for r in rows if "String / data encryption" in (r.get("obfuscation_classes") or []))
+    print(f"\n=== ENCRYPTION methods (of {en_total} crackmes) ===")
+    for m, _ in ENCRYPTION:
+        if en_dist[m]:
+            print(f"  {m:42} {en_dist[m]:4}")
+    print(f"  {'(generic string/data encryption)':42} {en_generic:4}")
 
 
 if __name__ == "__main__":

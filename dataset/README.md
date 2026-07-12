@@ -67,6 +67,8 @@ antidebug_methods      # specific anti-debug techniques
 packers                # specific packer names (UPX, FSG, ASPack, ...)
 controlflow_methods    # specific control-flow techniques
 antidisasm_methods     # specific anti-disassembly techniques
+crypto_methods         # named crypto/hash algorithms (MD5, AES, CRC32, ...)
+encryption_methods     # named string/data ciphers (XOR, RC4, TEA, ...)
 raw_obfuscation_tags   # original free-text tags (pre-normalization)
 label_confidence       # low | medium | high (model self-report)
 evidence               # short text justification
