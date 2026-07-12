@@ -28,11 +28,13 @@ ANTIDEBUG = [
     ("DbgBreakPoint/DbgUiRemoteBreakin patch", r"dbgbreak|dbguiremote"),
     ("Self-debug / block debugger",    r"debugactiveprocess|self[-\s]?debug|ntsetinformationthread|hidefromdebugger|threadhidefromdebugger|hide from debugger"),
     ("TLS callback",                   r"tls callback"),
+    ("Anti-attach / thread suspension", r"anti[-\s]?attach|thread suspension|suspend thread|anti[-\s]?thread"),
     ("Anti-dump",                      r"anti[-\s]?dump"),
     ("Parent-process check",           r"parent process|explorer\.exe.*parent|ppid"),
 ]
 
 PACKERS = [
+    # runtime packers
     ("UPX",        r"\bupx\b"),
     ("FSG",        r"\bfsg\b"),
     ("ASPack",     r"\baspack\b"),
@@ -46,6 +48,23 @@ PACKERS = [
     ("Yoda",       r"yoda"),
     ("exepack",    r"exepack"),
     ("Other named (Morphine/Neolite/PEtite…)", r"morphine|neolite|packman|mkfpack|kkrunchy"),
+    # commercial protectors (merged into the Packer class)
+    ("Themida",       r"themida"),
+    ("VMProtect",     r"vmprotect"),
+    ("WinLicense",    r"winlicense"),
+    ("Enigma",        r"enigma"),
+    ("ExeCryptor",    r"execryptor"),
+    ("ASProtect",     r"asprotect"),
+    ("Obsidium",      r"obsidium"),
+    ("PELock",        r"pelock"),
+    ("CodeVirtualizer", r"codevirtualizer"),
+    ("Armadillo",     r"armadillo"),
+    ("Safengine",     r"safengine"),
+    ("MoleBox",       r"molebox"),
+    (".NET Reactor",  r"\.net\s*reactor|dotnetreactor|eziriz"),
+    ("ConfuserEx",    r"confuser"),
+    ("Dotfuscator",   r"dotfuscator"),
+    ("SmartAssembly", r"smartassembly"),
 ]
 
 CONTROLFLOW = [

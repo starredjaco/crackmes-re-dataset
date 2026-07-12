@@ -7,7 +7,7 @@ in two levels:
 raw_obfuscation_tags   free-text tags the model wrote      (4,654 distinct strings)
       │  normalize_tags.py  (regex → controlled vocabulary)
       ▼
-obfuscation_classes    21 high-level classes               (below)
+obfuscation_classes    16 high-level classes               (below)
       │  subclassify.py     (regex → specific techniques)
       ▼
 antidebug_methods / packers / controlflow_methods   specific sub-labels
@@ -17,27 +17,32 @@ The exact mapping rules are regexes in `pipeline/normalize_tags.py` (classes) an
 `pipeline/subclassify.py` (sub-labels) — edit and re-run to adjust the scheme, no
 API cost. Counts below = crackmes carrying that tag (of 4,598).
 
-## Obfuscation classes (21)
+> **Design choices baked into the vocabulary:** *Timing checks*, *Anti-attach /
+> thread tricks*, and the debugger-detection use of *exceptions* are all
+> anti-debugging techniques, so they are folded into **Anti-debugging** (with
+> `Timing (rdtsc/GetTickCount)`, `Anti-attach / thread suspension`, and
+> `Exception-based (SEH/VEH/INT2D)` as sub-labels). *Commercial protectors*
+> (Themida, VMProtect, .NET Reactor, …) are folded into **Packer**, with the
+> protector name kept as a packer sub-label. Exceptions are dual-use, so each
+> crackme's exception tags are routed to **Anti-debugging** and/or **Control-flow
+> obfuscation** based on wording.
+
+## Obfuscation classes (16)
 
 | Class | Crackmes | What it covers |
 |---|---:|---|
-| Anti-debugging | 731 | detects/thwarts a debugger (IsDebuggerPresent, ptrace, PEB checks, INT3 scans, timing, HW breakpoints, tool-window detection) |
-| Packer | 532 | runtime executable packer (UPX, FSG, ASPack, PECompact, MPRESS, …) |
+| Anti-debugging | 751 | detects/thwarts a debugger — incl. timing (rdtsc/GetTickCount), anti-attach/thread tricks, and SEH/INT2D debugger detection |
+| Packer | 563 | runtime packers (UPX, FSG, ASPack, MPRESS, …) **and** commercial protectors (Themida, VMProtect, .NET Reactor, ConfuserEx, ASProtect, …) |
 | String / data encryption | 514 | encrypted/obfuscated strings or data (XOR, RC4, string encryption) |
 | Self-modifying / runtime decrypt | 312 | code rewrites/decrypts itself at runtime (SMC, section decryption, polymorphic, VirtualProtect) |
 | Code virtualization / VM | 256 | custom bytecode interpreter / virtualized code |
 | Crypto / hash algorithm | 205 | standard crypto/hash in the key check (MD5, SHA, CRC32, AES, TEA) |
+| Control-flow obfuscation | 143 | flattening, junk branches, indirect jumps, state machines, exception-driven flow |
 | Anti-tamper / integrity | 137 | checksum/CRC self-checks, anti-patch |
-| Control-flow obfuscation | 133 | flattening, junk branches, indirect jumps, state machines, exception-driven flow |
 | Anti-disassembly | 126 | junk bytes, opaque predicates, misaligned code that breaks disassemblers |
-| Timing checks | 123 | rdtsc/GetTickCount timing to detect single-stepping/analysis |
-| Exception-based | 85 | SEH/VEH/INT2D used for obfuscation or control flow |
 | Import / API obfuscation | 78 | runtime import resolution, API hashing, IAT obfuscation |
-| Custom / generic obfuscation | 73 | bespoke/unspecified "obfuscated" without a named mechanism |
+| Custom / generic obfuscation | 73 | bespoke/unspecified "obfuscated" with no named mechanism |
 | Encoding (base64/hex) | 72 | reversible encodings (base64, hex, rot13) |
-| Commercial protector | 39 | named protectors (Themida, VMProtect, .NET Reactor, ConfuserEx, ASProtect…) |
-| Stripped / no symbols | 38 | symbols removed |
-| Anti-attach / thread tricks | 34 | anti-attach, thread suspension, TLS-callback tricks |
 | Binary hardening (ASLR/PIE/canary) | 29 | compiler mitigations (ASLR, PIE, stack canary, NX) |
 | Anti-VM / sandbox | 22 | VM/sandbox detection |
 | Nag / trial | 12 | nag screens, trial/time limits |
@@ -45,15 +50,19 @@ API cost. Counts below = crackmes carrying that tag (of 4,598).
 
 ## Sub-labels
 
-**`antidebug_methods` (17)** — IsDebuggerPresent (211), Debugger/tool window detection (158),
+**`antidebug_methods` (18)** — IsDebuggerPresent (211), Debugger/tool window detection (158),
 Timing rdtsc/GetTickCount (118), PEB BeingDebugged/NtGlobalFlag (81), INT3/0xCC scan (74),
 ptrace (57), Exception-based SEH/VEH/INT2D (54), Hardware breakpoints DRx (45),
 NtQueryInformationProcess (26), OutputDebugString (25), CheckRemoteDebuggerPresent (24),
 Self-debug/block-debugger (21), TLS callback (19), Anti-dump (16), Parent-process check (11),
-DbgBreakPoint/DbgUiRemoteBreakin patch (8), CloseHandle invalid-handle (5)
+Anti-attach/thread suspension (9), DbgBreakPoint/DbgUiRemoteBreakin patch (8),
+CloseHandle invalid-handle (5)
 
-**`packers` (12)** — UPX (219), FSG (62), ASPack (45), MPRESS (31), tElock (12), Petite (9),
-Yoda (8), PECompact (5), exepack (3), other named (2), PKLite (1), MEW (1)
+**`packers` (24)** — runtime packers: UPX (219), FSG (62), ASPack (45), MPRESS (31),
+tElock (12), Petite (9), Yoda (8), PECompact (5), exepack (3), PKLite (1), MEW (1),
+other named (2); commercial protectors: VMProtect (9), ASProtect (7), .NET Reactor (7),
+ConfuserEx (6), Enigma (3), Themida (3), ExeCryptor (3), WinLicense (2), SmartAssembly (2),
+PELock (1), CodeVirtualizer (1), Dotfuscator (1)
 
 **`controlflow_methods` (6)** — Spaghetti/junk-branch (40), Exception/interrupt-based (29),
 Indirect/computed jumps & calls (23), State machine/dispatcher (21), Control-flow flattening CFF (16),

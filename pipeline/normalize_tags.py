@@ -14,11 +14,14 @@ OUT = os.path.join(HERE, "results_final_normalized.jsonl")
 
 # Ordered canonical classes. Each raw tag is matched against ALL of these
 # (multi-label); a tag matching none goes to "Other / unclassified".
+# NOTE: "Timing checks", "Anti-attach / thread tricks", and the anti-debug half of
+# exceptions are folded into "Anti-debugging". "Commercial protector" is folded into
+# "Packer" (protector names become packer sub-labels in subclassify.py). "Stripped /
+# no symbols" is dropped. Exception tags are dual-use and routed per-crackme in main().
 CLASSES = [
-    ("Commercial protector",      r"themida|vmprotect|winlicense|enigma|armadillo|execryptor|obsidium|safengine|molebox|codevirtualizer|asprotect|pelock|\.net\s*reactor|reactor|confuser|dotfuscator|smartassembly|\.net\s*guard"),
     ("Code virtualization / VM",  r"\bvm\b|virtual\s*machine|virtuali[sz]|byte\s*code|bytecode|p-?code|custom (interpreter|machine)|opcode|interpreter"),
-    ("Packer",                    r"\bupx\b|\bfsg\b|aspack|pecompact|mpress|\bmew\b|petite|nspack|telock|pklite|yoda|nspack|exepack|\bpacked\b|packer|unpack|packing"),
-    ("Anti-debugging",            r"isdebuggerpresent|checkremotedebugger|ntqueryinformation|ntsetinformation|debugger|anti[-\s]?debug|dbgbreak|dbguiremote|beingdebugged|peb.*debug|\bint3\b|0xcc|ptrace|outputdebugstring|hardware breakpoint|debug register|\bdr[0-7]\b|breakpoint|softice|ntglobalflag|setunhandledexceptionfilter|anti[-\s]?dump|closehandle|findwindow|ollydbg|olly\b|x64dbg|kiuserexceptiondispatcher"),
+    ("Packer",                    r"\bupx\b|\bfsg\b|aspack|pecompact|mpress|\bmew\b|petite|nspack|telock|pklite|yoda|nspack|exepack|\bpacked\b|packer|unpack|packing|themida|vmprotect|winlicense|enigma|armadillo|execryptor|obsidium|safengine|molebox|codevirtualizer|asprotect|pelock|\.net\s*reactor|dotnetreactor|eziriz|confuser|dotfuscator|smartassembly|\.net\s*guard"),
+    ("Anti-debugging",            r"isdebuggerpresent|checkremotedebugger|ntqueryinformation|ntsetinformation|debugger|anti[-\s]?debug|dbgbreak|dbguiremote|beingdebugged|peb.*debug|\bint3\b|0xcc|ptrace|outputdebugstring|hardware breakpoint|debug register|\bdr[0-7]\b|breakpoint|softice|ntglobalflag|setunhandledexceptionfilter|anti[-\s]?dump|closehandle|findwindow|ollydbg|olly\b|x64dbg|kiuserexceptiondispatcher|rdtsc|gettickcount|queryperformance|timing|time\s*check|anti[-\s]?attach|thread suspension|suspend thread|thread-based|tls callback|anti[-\s]?thread"),
     ("Anti-VM / sandbox",         r"anti[-\s]?vm|vmware|virtualbox|\bvbox\b|sandbox|hypervisor"),
     ("Anti-disassembly",          r"anti[-\s]?disas|junk\s*(code|byte|instr)|opaque predicate|garbage\s*(code|byte)|fake\s*(jump|instr)|obfuscated\s*(jump|jne|jz|je)|je obfuscation|misalign"),
     ("Self-modifying / runtime decrypt", r"self[-\s]?modif|self[-\s]?decrypt|\bsmc\b|runtime\s*(code\s*)?(decrypt|unpack)|section\s*(encrypt|decrypt)|decrypt.*section|encrypted\s*(section|code)|code encrypt|stage decrypt|on-the-fly|polymorph|metamorph|code mutation|oep hid|writeprocessmemory|virtualalloc.*code|virtualprotect"),
@@ -27,16 +30,17 @@ CLASSES = [
     ("Encoding (base64/hex)",     r"base\s*64|base64|base32|hex encod|encoded string|rot13"),
     ("Anti-tamper / integrity",   r"checksum|integrity|crc.*check|anti[-\s]?patch|anti[-\s]?tamper|self[-\s]?check|\btamper"),
     ("Crypto / hash algorithm",   r"\bmd5\b|sha-?\d|sha256|sha1|crc-?32|\baes\b|\btea\b|xtea|blowfish|\bdes\b|\brsa\b|hashing|hash function"),
-    ("Timing checks",             r"rdtsc|gettickcount|timing|time\s*check|queryperformance|\bsleep\b"),
     ("Import / API obfuscation",  r"import\s*(resolution|obfusc|hash|table)|getprocaddress|loadlibrary|api\s*hash|dynamic import|iat\b|runtime import"),
-    ("Stripped / no symbols",     r"strip|no symbol|symbol.*remov"),
-    ("Anti-attach / thread tricks", r"anti[-\s]?thread|thread suspension|suspend thread|anti[-\s]?attach|thread-based|tls callback"),
-    ("Exception-based",           r"exception handler|seh\b|veh\b|vectored exception|structured exception"),
     ("Nag / trial",               r"\bnag\b|trial|time.?limit|expire"),
     ("Binary hardening (ASLR/PIE/canary)", r"\baslr\b|\bpie\b|stack canary|stack cookie|\bnx\b|\bdep\b|relro|fortify|no[-\s]?exec"),
     ("Anti-static analysis",      r"anti[-\s]?static|static analysis"),
     ("Custom / generic obfuscation", r"custom obfusc|code obfusc|obfuscator|obfuscated code|heavy obfusc|generic obfusc"),
 ]
+
+# Exception tags are dual-use — routed per crackme (see main()).
+_EXC_RX = re.compile(r"\bseh\b|\bveh\b|vectored exception|structured exception|exception handler|exception[-\s]?based|kiuserexception|int\s*2d", re.I)
+_EXC_CF = re.compile(r"control|flow|dispatch|computed|indirect|\bjump\b|obfusc", re.I)
+_EXC_AD = re.compile(r"debug|detect|anti|breakpoint|trap|olly|int\s*2d|int3|protect", re.I)
 COMPILED = [(name, re.compile(pat, re.I)) for name, pat in CLASSES]
 
 
@@ -53,13 +57,24 @@ def main():
     with open(OUT, "w") as out:
         for r in rows:
             classes = set()
+            exc_tags = []
             for tag in (r.get("obfuscation") or []):
                 raw_total += 1
+                if _EXC_RX.search(tag):
+                    exc_tags.append(tag)
                 hits = classify(tag)
                 if hits:
                     classes.update(hits)
-                else:
+                elif not _EXC_RX.search(tag):
                     raw_unmatched[tag.strip().lower()] += 1
+            # dual-use exceptions: route to control-flow and/or anti-debugging
+            if exc_tags:
+                j = " ".join(exc_tags)
+                cf, ad = bool(_EXC_CF.search(j)), bool(_EXC_AD.search(j))
+                if cf:
+                    classes.add("Control-flow obfuscation")
+                if ad or not cf:            # anti-debug if AD-flavored, or bare SEH default
+                    classes.add("Anti-debugging")
             r["obfuscation_classes"] = sorted(classes)
             for c in classes:
                 per_class[c] += 1

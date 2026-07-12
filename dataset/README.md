@@ -38,7 +38,7 @@ verified ground truth without addressing them:
 |---|---|
 | `crackmes_dataset.jsonl` | Full records, one JSON per line (verifier code embedded) |
 | `crackmes_dataset.csv` | Flattened, spreadsheet-friendly (no verifier code) |
-| `TAXONOMY.md` | Full tag vocabulary (21 classes + sub-labels) + a worked example |
+| `TAXONOMY.md` | Full tag vocabulary (16 classes + sub-labels) + a worked example |
 
 Binaries come from the crackmes.one site archive (https://crackmes.one/faq#archive;
 `<hexid>.zip`, password `crackmes.one`), joined to these records by `hexid`. Use
@@ -62,7 +62,7 @@ verifier               # null, or {
                        #   interface: {kind, verify_args},
                        #   self_test: {pass, keygen_ok, accepts_valid, rejects_invalid},
                        #   confidence, language, notes }
-obfuscation_classes    # normalized high-level classes (21-term vocabulary)
+obfuscation_classes    # normalized high-level classes (16-term vocabulary)
 antidebug_methods      # specific anti-debug techniques
 packers                # specific packer names (UPX, FSG, ASPack, ...)
 controlflow_methods    # specific control-flow techniques
@@ -85,14 +85,13 @@ verifier; 70 have both). This is the number to lead with.
   pattern-match 4% / other 2%)
 - **Verifier scripts generated:** 1,722 (983 full + 739 partial) — of which **1,025
   pass** the self-test, **698 fail** (not confirmed correct), 41 quarantined
-- **>=1 obfuscation tag:** 1,829; normalized into 21 classes (1,711 mapped)
+- **>=1 obfuscation tag:** 1,829; normalized into 16 classes (1,704 mapped)
 - Counting *all* generated verifiers regardless of self-test gives 2,822 / 61.4% —
   prefer the high-confidence 2,172.
 
-Top obfuscation classes: Anti-debugging (731), Packer (532), String/data
+Top obfuscation classes: Anti-debugging (751), Packer (563), String/data
 encryption (514), Self-modifying (312), Code virtualization/VM (256).
-Top packers: UPX (219), FSG (62), ASPack (45). Top anti-debug: IsDebuggerPresent
-(211), tool-window detection (158), timing (109).
+Top packers: UPX (219), FSG (62), ASPack (45). Top anti-debug: IsDebuggerPresent (211), tool-window detection (158), timing (118).
 
 ## Verifier scripts (`verifiers/<hexid>.py`)
 Every verifier exposes a uniform CLI:
