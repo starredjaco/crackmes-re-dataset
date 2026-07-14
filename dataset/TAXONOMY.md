@@ -11,7 +11,7 @@ obfuscation_classes    13 high-level classes               (below)
       │  subclassify.py     (regex → specific techniques)
       ▼
 antidebug_methods / packers / controlflow_methods / antidisasm_methods /
-crypto_methods / encryption_methods                 specific sub-labels
+crypto_methods / encryption_methods / vm_methods    specific sub-labels
 ```
 
 The exact mapping rules are regexes in `pipeline/normalize_tags.py` (classes) and
@@ -37,7 +37,7 @@ API cost. Counts below = crackmes carrying that tag (of 4,598).
 | Packer | 563 | runtime packers (UPX, FSG, ASPack, MPRESS, …) **and** commercial protectors (Themida, VMProtect, .NET Reactor, ConfuserEx, ASProtect, …) |
 | Self-modifying / runtime decrypt | 312 | code rewrites/decrypts itself at runtime (SMC, section decryption, polymorphic, VirtualProtect) |
 | Crypto / hash algorithm | 283 | standard crypto/hash in the key check (MD5, SHA, CRC32, AES, TEA) |
-| Code virtualization / VM | 256 | custom bytecode interpreter / virtualized code |
+| Code virtualization / VM | 258 | custom bytecode interpreter / virtualized code |
 | Control-flow obfuscation | 187 | flattening, junk branches, indirect jumps, state machines, exception-driven flow |
 | Anti-disassembly | 183 | junk bytes, opaque predicates, misaligned code that breaks disassemblers |
 | Anti-tamper / integrity | 137 | checksum/CRC self-checks, anti-patch |
@@ -78,6 +78,11 @@ DES/3DES (7); 9 crackmes have no named algorithm.
 **`encryption_methods` (6)** — XOR (353), Base64 (25), RC4 (24), Substitution/table (14),
 TEA/XTEA (12), AES (11); 120 crackmes have a generic string/data-encryption tag with
 no named cipher.
+
+**`vm_methods` (4)** — Custom VM / bytecode interpreter (112), VB/.NET P-code (45),
+Stack-based VM (7), Register-based VM (1); 99 crackmes have a generic virtualization
+tag with no VM type. (P-code = language-runtime bytecode, a different RE task than an
+author-built custom VM.)
 
 ---
 

@@ -108,12 +108,20 @@ ENCRYPTION = [
     ("Substitution / table", r"substitut|lookup table|s-?box|translation table"),
 ]
 
+VM = [
+    ("VB / .NET P-code",              r"\bp-?code\b|managed bytecode|\.net\s*(il|bytecode)|\bcil\b"),
+    ("Custom VM / bytecode interpreter", r"custom\s*(vm|virtual\s*machine)|bytecode interpreter|custom bytecode|vm\s*handler|dispatch(er)? loop|opcode handler|interpreter loop"),
+    ("Stack-based VM",                r"stack[-\s]?based\s*(vm|virtual|machine)|stack\s*vm|stack machine"),
+    ("Register-based VM",             r"register[-\s]?based\s*(vm|virtual|machine)"),
+]
+
 ADC = [(n, re.compile(p, re.I)) for n, p in ANTIDEBUG]
 PKC = [(n, re.compile(p, re.I)) for n, p in PACKERS]
 CFC = [(n, re.compile(p, re.I)) for n, p in CONTROLFLOW]
 ADIS = [(n, re.compile(p, re.I)) for n, p in ANTIDISASM]
 CRY = [(n, re.compile(p, re.I)) for n, p in CRYPTO]
 ENC = [(n, re.compile(p, re.I)) for n, p in ENCRYPTION]
+VMC = [(n, re.compile(p, re.I)) for n, p in VM]
 
 # each sub-label field -> the high-level class it refines
 PARENT_CLASS = {
@@ -123,6 +131,7 @@ PARENT_CLASS = {
     "antidisasm_methods":   "Anti-disassembly",
     "crypto_methods":       "Crypto / hash algorithm",
     "encryption_methods":   "String / data encryption",
+    "vm_methods":           "Code virtualization / VM",
 }
 
 
@@ -143,7 +152,8 @@ def main():
     ax_dist = collections.Counter()
     cr_dist = collections.Counter()
     en_dist = collections.Counter()
-    ad_generic = pk_generic = cf_generic = ax_generic = cr_generic = en_generic = 0
+    vm_dist = collections.Counter()
+    ad_generic = pk_generic = cf_generic = ax_generic = cr_generic = en_generic = vm_generic = 0
     for r in rows:
         tags = r.get("obfuscation") or []
         classes = r.get("obfuscation_classes") or []
@@ -153,12 +163,14 @@ def main():
         axm = match_all(tags, ADIS)
         crm = match_all(tags, CRY)
         enm = match_all(tags, ENC)
+        vmm = match_all(tags, VMC)
         r["antidebug_methods"] = adm
         r["packers"] = pks
         r["controlflow_methods"] = cfm
         r["antidisasm_methods"] = axm
         r["crypto_methods"] = crm
         r["encryption_methods"] = enm
+        r["vm_methods"] = vmm
         # Invariant: a non-empty sub-label implies its parent class. A named
         # technique that matched a sub-label regex but not the (narrower) class
         # regex must still carry its umbrella class. Additive + deterministic.
@@ -198,6 +210,11 @@ def main():
                 en_dist[m] += 1
             if not enm:
                 en_generic += 1
+        if "Code virtualization / VM" in classes:
+            for m in vmm:
+                vm_dist[m] += 1
+            if not vmm:
+                vm_generic += 1
 
     with open(OUT, "w") as f:
         for r in rows:
@@ -244,6 +261,13 @@ def main():
         if en_dist[m]:
             print(f"  {m:42} {en_dist[m]:4}")
     print(f"  {'(generic string/data encryption)':42} {en_generic:4}")
+
+    vm_total = sum(1 for r in rows if "Code virtualization / VM" in (r.get("obfuscation_classes") or []))
+    print(f"\n=== CODE VIRTUALIZATION / VM types (of {vm_total} crackmes) ===")
+    for m, _ in VM:
+        if vm_dist[m]:
+            print(f"  {m:42} {vm_dist[m]:4}")
+    print(f"  {'(generic virtualization, no VM type)':42} {vm_generic:4}")
 
 
 if __name__ == "__main__":

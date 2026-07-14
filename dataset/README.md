@@ -69,6 +69,7 @@ controlflow_methods    # specific control-flow techniques
 antidisasm_methods     # specific anti-disassembly techniques
 crypto_methods         # named crypto/hash algorithms (MD5, AES, CRC32, ...)
 encryption_methods     # named string/data ciphers (XOR, RC4, TEA, ...)
+vm_methods             # VM type (custom VM, VB/.NET P-code, stack-based)
 raw_obfuscation_tags   # original free-text tags (pre-normalization)
 label_confidence       # low | medium | high (model self-report)
 evidence               # short text justification
