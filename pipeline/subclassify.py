@@ -95,7 +95,7 @@ CRYPTO = [
     ("TEA / XTEA",  r"\btea\b|xtea"),
     ("RSA",         r"\brsa\b"),
     ("Blowfish",    r"blowfish"),
-    ("Base64",      r"base\s*64|base64"),
+    ("Base64",      r"base\s*64|base64"),   # by convention (not strictly crypto)
     ("Other / custom hash", r"custom hash|adler|murmur|\bdjb\b|\bfnv\b|jenkins|superfast|xxhash"),
 ]
 

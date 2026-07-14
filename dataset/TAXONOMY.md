@@ -7,7 +7,7 @@ in two levels:
 raw_obfuscation_tags   free-text tags the model wrote      (4,654 distinct strings)
       │  normalize_tags.py  (regex → controlled vocabulary)
       ▼
-obfuscation_classes    16 high-level classes               (below)
+obfuscation_classes    14 high-level classes               (below)
       │  subclassify.py     (regex → specific techniques)
       ▼
 antidebug_methods / packers / controlflow_methods / antidisasm_methods /
@@ -28,12 +28,12 @@ API cost. Counts below = crackmes carrying that tag (of 4,598).
 > crackme's exception tags are routed to **Anti-debugging** and/or **Control-flow
 > obfuscation** based on wording.
 
-## Obfuscation classes (16)
+## Obfuscation classes (14)
 
 | Class | Crackmes | What it covers |
 |---|---:|---|
 | Anti-debugging | 756 | detects/thwarts a debugger — incl. timing (rdtsc/GetTickCount), anti-attach/thread tricks, and SEH/INT2D debugger detection |
-| String / data encryption | 586 | encrypted/obfuscated strings or data (XOR, RC4, string encryption) |
+| String / data encryption | 589 | encrypted/obfuscated strings or data (XOR, RC4, string encryption) |
 | Packer | 563 | runtime packers (UPX, FSG, ASPack, MPRESS, …) **and** commercial protectors (Themida, VMProtect, .NET Reactor, ConfuserEx, ASProtect, …) |
 | Self-modifying / runtime decrypt | 312 | code rewrites/decrypts itself at runtime (SMC, section decryption, polymorphic, VirtualProtect) |
 | Crypto / hash algorithm | 283 | standard crypto/hash in the key check (MD5, SHA, CRC32, AES, TEA) |
@@ -43,8 +43,6 @@ API cost. Counts below = crackmes carrying that tag (of 4,598).
 | Anti-tamper / integrity | 137 | checksum/CRC self-checks, anti-patch |
 | Import / API obfuscation | 78 | runtime import resolution, API hashing, IAT obfuscation |
 | Custom / generic obfuscation | 73 | bespoke/unspecified "obfuscated" with no named mechanism |
-| Encoding (base64/hex) | 72 | reversible encodings (base64, hex, rot13) |
-| Binary hardening (ASLR/PIE/canary) | 29 | compiler mitigations (ASLR, PIE, stack canary, NX) |
 | Anti-VM / sandbox | 22 | VM/sandbox detection |
 | Nag / trial | 12 | nag screens, trial/time limits |
 | Anti-static analysis | 5 | explicitly thwarts static analysis |
